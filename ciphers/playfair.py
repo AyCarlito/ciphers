@@ -5,21 +5,19 @@ import numpy as np
 def get_arguments():
     parser = argparse.ArgumentParser(description="Playfair Cipher")
     parser.add_argument("m", type=str, help="Message")
+    parser.add_argument("k", type=str, help="Key")
     args = parser.parse_args()
     return args
 
 
-def get_key_table():
+def get_key_table(key):
     uniques = []
     alphabet = list(string.ascii_uppercase)
     alphabet.remove("J")
-    key = "PLAYFAIREXAMPLE"
-
-    for letter in key:
+    for letter in key.replace(" ", "").upper():
         if letter not in uniques:
             uniques.append(letter)
     mixed_alphabet = uniques + [item for item in alphabet if item not in uniques]
-
 
     return(np.array(mixed_alphabet).reshape(5,5))
 
@@ -27,6 +25,7 @@ def strip_message(message):
     message = message.translate(str.maketrans("", "", string.punctuation))
     message = message.replace(" ", "")
     return message
+
 def get_bigrams(unigrams, encoding):
     unigrams = list(strip_message(unigrams))
     if encoding:
@@ -101,23 +100,23 @@ def subtitute(key_table, bigrams, status):
     return text
 
 
-def encode(message):
+def encode(message, key):
     print(f"Message: {message}")
-    key_table = get_key_table()
+    key_table = get_key_table(key)
     bigrams = get_bigrams(message, True)
     ciphertext = subtitute(key_table, bigrams, "encoding")
     print(f"Ciphertext: {ciphertext}")
     return ciphertext
 
-def decode(ciphertext):
-    key_table = get_key_table()
+def decode(ciphertext, key):
+    key_table = get_key_table(key)
     bigrams = get_bigrams(ciphertext, False)
     plaintext = subtitute(key_table, bigrams, "decoding")
     print(f"Decoded Plaintext: {plaintext}")
 
 def main():
     args = get_arguments()
-    decode(encode(args.m))
+    decode(encode(args.m, args.k),args.k)
 
 
 
